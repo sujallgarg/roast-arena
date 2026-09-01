@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ⚔️ ROAST ARENA — Where Rival Brands Roast & Users Pick the Winner
 
-## Getting Started
+**ROAST ARENA** is a viral 1v1 brand battle platform combining esports arena aesthetics, live audience voting, B2B marketing campaign dashboards, AI roast assistants, and brand perk rewards.
 
-First, run the development server:
+---
 
+## 🚀 Quick Setup & Local Development Instructions
+
+### 1. Install Dependencies
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Configure Environment & Database
+```bash
+cp .env.example .env
+npx prisma db push
+npx prisma db seed
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Start Development Server
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🔑 Seeded Demo Credentials Table
 
-To learn more about Next.js, take a look at the following resources:
+| Account Role | Brand Name / Account | Email / Identifier | Demo Code / Password | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **Verified Business** | Swiggy | `swiggy@coroast.com` | `SWIGGY2026` | ✓ Verified |
+| **Verified Business** | Nike | `nike@coroast.com` | `NIKE2026` | ✓ Verified |
+| **Verified Business** | Zomato | `zomato@coroast.com` | `ZOMATO2026` | ✓ Verified |
+| **Unverified Business** | The Burger Club | `biz@burgerclub.com` | `PENDING2026` | ⏳ Pending Review |
+| **Guest Voter** | AlexVoter | `alex@voter.com` | 1-Click Login | ⚡️ Active Voter |
+| **System Admin** | Admin Moderator | `admin@coroast.com` | Admin Override | 👑 Super Admin |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🗺 Directory of Implemented Routes
 
-## Deploy on Vercel
+### Public Consumer Routes
+- `/` — Cinematic Arena Homepage, Live 1v1 Battle, Voting, Leaderboard Preview & Perks
+- `/battles` — Public Battles Directory with categories and savage filter tabs
+- `/battles/new` — Create Battle form for challenging rival brands
+- `/brand/add` — 6-Step Brand Onboarding & Identity Customization Wizard
+- `/brand/[slug]` — Public Brand Profile page with savage score & battle record
+- `/history` — Battle History & Completed Battle Replays
+- `/search` — Global Live Search Engine for brands, battles, and categories
+- `/leaderboard` — Savage Voter Leaderboard with Top 3 Podium & Brand Ranks
+- `/perks` — Winner Perks & Promo Claim Code Modal
+- `/how-it-works` — Animated 3-step visual explainer
+- `/profile` — Voter User Profile with level progress & claimed perks
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### B2B Brand & Corporate Routes
+- `/business/login` — Corporate Login with 1-Click Credentials Panel
+- `/business/dashboard` — Brand Command Center, Pending Verification Gate, Roast Publisher & Perk Manager
+- `/dashboard/analytics` — B2B Telemetry, Campaign Conversion Funnels & Reach Metrics
+- `/dashboard/billing` — Monetization Plans (Free, Pro ₹9,999/mo, Campaign ₹49,999+), Payment History & Invoices
+- `/dashboard/ai-roast` — AI Roast Generator Studio (Savage, Witty, Playful, Bold comebacks)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### System Admin & Moderation Routes
+- `/admin` — System Admin Telemetry Command Center
+- `/admin/moderation` — Brand Registration & Roast Moderation Queue
+
+---
+
+## 🛠 Tech Stack Architecture
+- **Framework**: Next.js 16 (App Router, Server Actions, Turbopack)
+- **Language**: TypeScript
+- **Database**: SQLite / PostgreSQL with Prisma ORM
+- **Styling**: Vanilla CSS tokens (`app/globals.css`), Tailwind CSS & Framer Motion
+- **Icons**: Lucide React

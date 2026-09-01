@@ -1,26 +1,119 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #f8fafc;
+    --foreground: #0f172a;
+    
+    --card: #ffffff;
+    --card-foreground: #0f172a;
+
+    --muted: #f1f5f9;
+    --muted-foreground: #64748b;
+
+    --border: #e2e8f0;
+    --input: #e2e8f0;
+    
+    --radius: 0.75rem;
+
+    --brand-a-color: #ef4444;
+    --brand-a-glow: rgba(239, 68, 68, 0.2);
+    
+    --brand-b-color: #2563eb;
+    --brand-b-glow: rgba(37, 99, 235, 0.2);
+  }
+
+  body {
+    background-color: #f8fafc;
+    color: #0f172a;
+    font-family: var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    position: relative;
+  }
+
+  /* Global Arena Boxing Gloves Background with Opacity */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: url('/arena-bg-gloves.png');
+    background-size: cover;
+    background-position: center top;
+    background-repeat: no-repeat;
+    opacity: 0.18;
+    pointer-events: none;
+    z-index: 0;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Allow global arena boxing gloves background to shine through page root containers */
+.bg-\[\#f8fafc\] {
+  background-color: transparent !important;
 }
+
+/* Stadium Light Grid Canvas & Ambient Glows */
+.bg-stadium-grid {
+  background-color: #f8fafc;
+  background-image: 
+    radial-gradient(rgba(239, 68, 68, 0.08) 1px, transparent 1px),
+    radial-gradient(rgba(37, 99, 235, 0.08) 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-position: 0 0, 16px 16px;
+}
+
+.arena-hero-glow {
+  background: 
+    radial-gradient(ellipse 60% 40% at 25% 20%, rgba(239, 68, 68, 0.08), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 75% 20%, rgba(37, 99, 235, 0.08), transparent 70%),
+    #ffffff;
+}
+
+/* Glassmorphism White Light Card Style */
+.glass-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(15, 23, 42, 0.03);
+}
+
+/* Red Brand Glow Card */
+.glow-card-red {
+  box-shadow: 0 0 30px -5px rgba(239, 68, 68, 0.18);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+/* Blue Brand Glow Card */
+.glow-card-blue {
+  box-shadow: 0 0 30px -5px rgba(37, 99, 235, 0.18);
+  border-color: rgba(37, 99, 235, 0.4);
+}
+
+/* Gold Reward Card Glow */
+.glow-card-gold {
+  box-shadow: 0 0 25px -5px rgba(245, 158, 11, 0.2);
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+/* Animated Vote Bar Glow */
+@keyframes pulseGlowRed {
+  0%, 100% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.3); }
+  50% { box-shadow: 0 0 25px rgba(239, 68, 68, 0.5); }
+}
+
+@keyframes pulseGlowBlue {
+  0%, 100% { box-shadow: 0 0 15px rgba(37, 99, 235, 0.3); }
+  50% { box-shadow: 0 0 25px rgba(37, 99, 235, 0.5); }
+}
+
+.animate-glow-red {
+  animation: pulseGlowRed 3s infinite;
+}
+
+.animate-glow-blue {
+  animation: pulseGlowBlue 3s infinite;
+}
+

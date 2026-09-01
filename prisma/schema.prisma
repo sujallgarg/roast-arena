@@ -1,0 +1,323 @@
+// BrandBanter Prisma Schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum BattleStatus {
+  UPCOMING
+  LIVE
+  ENDED
+}
+
+enum ReactionType {
+  SAVAGE
+  MID
+  CRINGE
+}
+
+model Brand {
+  id            String   @id @default(uuid())
+  name          String
+  slug          String   @unique
+  handle        String   @unique // e.g. @swiggy, @zomato, @apple
+  logoUrl       String
+  verifiedBadge Boolean  @default(true)
+  brandColor    String   @default("#3b82f6") // HEX accent color (e.g., #fc8019 for Swiggy, #cb202d for Zomato)
+  description   String?
+  website       String?
+  accessCode    String?  @default("ROAST2026")
+  contactEmail  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  battlesAsBrandA Battle[]    @relation("BrandA")
+  battlesAsBrandB Battle[]    @relation("BrandB")
+  battlesWon      Battle[]    @relation("BattleWinner")
+  roastPosts      RoastPost[]
+  votes           Vote[]
+}
+
+model Battle {
+  id            String       @id @default(uuid())
+  slug          String       @unique
+  title         String
+  description   String?
+  status        BattleStatus @default(LIVE)
+  roundCount    Int          @default(3)
+  
+  brandAId      String
+  brandA        Brand        @relation("BrandA", fields: [brandAId], references: [id], onDelete: Cascade)
+  
+  brandBId      String
+  brandB        Brand        @relation("BrandB", fields: [brandBId], references: [id], onDelete: Cascade)
+  
+  votesCountA   Int          @default(0)
+  votesCountB   Int          @default(0)
+  
+  winnerBrandId String?
+  winnerBrand   Brand?       @relation("BattleWinner", fields: [winnerBrandId], references: [id])
+  
+  perkTitle     String?      // e.g. "20% OFF Swiggy Coupon for Voter"
+  perkCode      String?      // e.g. "SWIGGYBANTER20"
+  perkLink      String?
+
+  joinedCount   Int          @default(0)
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  // Relations
+  roastPosts    RoastPost[]
+  votes         Vote[]
+  comments      Comment[]
+  participants  BattleParticipant[]
+
+  @@index([status])
+}
+
+model RoastPost {
+  id            String   @id @default(uuid())
+  battleId      String
+  battle        Battle   @relation(fields: [battleId], references: [id], onDelete: Cascade)
+  
+  authorBrandId String
+  authorBrand   Brand    @relation(fields: [authorBrandId], references: [id], onDelete: Cascade)
+  
+  content       String
+  mediaUrl      String?
+  mediaType     String?  // "image" | "video" | "meme"
+  roundNumber   Int      @default(1)
+  likesCount    Int      @default(0)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  comments      Comment[]
+
+  @@index([battleId, roundNumber])
+}
+
+model User {
+  id            String              @id @default(uuid())
+  username      String              @unique
+  email         String              @unique
+  password      String              // Hashed password
+  mobile        String?             @unique
+  name          String?
+  avatarUrl     String?
+  bio           String?             @default("I live for brand battles and savage comebacks. 🔥🥊")
+  location      String?             @default("Global")
+  points        Int                 @default(500)
+  level         String              @default("Level 1 • Arena Rookie")
+  currentStreak Int                 @default(1)
+  longestStreak Int                 @default(1)
+  lastActiveDate DateTime?          @default(now())
+  battlesShared Int                 @default(0)
+  favoriteBrandIds String?          // JSON array or comma separated
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  votes         Vote[]
+  comments      Comment[]
+  joinedBattles BattleParticipant[]
+  xpTransactions XPTransaction[]
+  badges        UserBadge[]
+  activities    UserActivity[]
+  questProgress UserQuestProgress[]
+  notifications Notification[]
+  perkClaims    PerkClaim[]
+
+  @@index([points(sort: Desc)])
+}
+
+model XPTransaction {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount      Int      // e.g. +50, +20
+  type        String   // "VOTE" | "COMMENT" | "UPVOTE_RECEIVED" | "SHARE" | "WIN_BONUS" | "QUEST" | "BADGE" | "STREAK" | "WEEKLY_LEADERBOARD"
+  sourceId    String?  // battleId, commentId, badgeId, questId
+  description String
+  createdAt   DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model Badge {
+  id               String      @id @default(uuid())
+  name             String
+  slug             String      @unique
+  description      String
+  icon             String      // emoji or icon key
+  rarity           String      @default("COMMON") // "COMMON" | "RARE" | "EPIC" | "LEGENDARY"
+  category         String      // "STARTER" | "VOTING" | "COMMENT" | "BATTLE" | "ENGAGEMENT" | "STREAK" | "LEVEL"
+  requirementType  String      // "VOTES_COUNT" | "COMMENTS_COUNT" | "UPVOTES_RECEIVED" | "BATTLES_JOINED" | "BATTLES_WON" | "SHARES_COUNT" | "STREAK_DAYS" | "LEVEL_REACHED"
+  requirementValue Int
+  xpReward         Int         @default(100)
+  createdAt        DateTime    @default(now())
+
+  users            UserBadge[]
+}
+
+model UserBadge {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badgeId    String
+  badge      Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  unlockedAt DateTime @default(now())
+
+  @@unique([userId, badgeId])
+  @@index([userId])
+}
+
+model UserActivity {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        String   // "VOTE" | "COMMENT" | "LEVEL_UP" | "BADGE_UNLOCKED" | "BATTLE_JOINED" | "BATTLE_WON" | "SHARE" | "QUEST_COMPLETED"
+  title       String
+  description String?
+  xpEarned    Int      @default(0)
+  metadata    String?  // JSON string
+  createdAt   DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model DailyQuest {
+  id                String              @id @default(uuid())
+  title             String
+  description       String
+  requirementType   String              // "VOTE" | "COMMENT" | "SHARE"
+  requirementTarget Int
+  xpReward          Int                 @default(50)
+  active            Boolean             @default(true)
+  createdAt         DateTime            @default(now())
+
+  userProgress      UserQuestProgress[]
+}
+
+model UserQuestProgress {
+  id           String     @id @default(uuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questId      String
+  quest        DailyQuest @relation(fields: [questId], references: [id], onDelete: Cascade)
+  dateKey      String     // "YYYY-MM-DD" in UTC
+  currentCount Int        @default(0)
+  completed    Boolean    @default(false)
+  completedAt  DateTime?
+
+  @@unique([userId, questId, dateKey])
+  @@index([userId, dateKey])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      String   // "BADGE" | "LEVEL_UP" | "XP" | "BATTLE" | "COMMENT" | "QUEST"
+  read      Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model BattleParticipant {
+  id        String   @id @default(uuid())
+  battleId  String
+  battle    Battle   @relation(fields: [battleId], references: [id], onDelete: Cascade)
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ipHash    String?
+  joinedAt  DateTime @default(now())
+
+  @@unique([battleId, userId])
+  @@index([battleId])
+}
+
+model Vote {
+  id            String       @id @default(uuid())
+  battleId      String
+  battle        Battle       @relation(fields: [battleId], references: [id], onDelete: Cascade)
+  
+  chosenBrandId String
+  chosenBrand   Brand        @relation(fields: [chosenBrandId], references: [id], onDelete: Cascade)
+  
+  reactionType  ReactionType @default(SAVAGE)
+  ipHash        String       // Anonymized hash for rate limiting bot protection
+  userId        String?      // Optional authenticated user ID
+  user          User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  createdAt     DateTime     @default(now())
+
+  @@unique([battleId, ipHash])
+  @@index([battleId, userId])
+}
+
+model Comment {
+  id           String     @id @default(uuid())
+  battleId     String
+  battle       Battle     @relation(fields: [battleId], references: [id], onDelete: Cascade)
+  
+  roastPostId  String?
+  roastPost    RoastPost? @relation(fields: [roastPostId], references: [id], onDelete: Cascade)
+  
+  userId       String?
+  user         User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  authorName   String
+  authorHandle String?
+  authorAvatar String
+  content      String
+  upvotesCount Int        @default(0)
+  
+  createdAt    DateTime   @default(now())
+
+  @@index([battleId, createdAt])
+  @@index([userId, createdAt])
+}
+
+model Perk {
+  id           String      @id @default(uuid())
+  brand        String
+  brandColor   String      @default("bg-red-600")
+  discount     String
+  condition    String      @default("Valid on battle redemption")
+  xpCost       Int         @default(500)
+  image        String      @default("https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&auto=format&fit=crop&q=80")
+  category     String      @default("shopping")
+  code         String
+  claimedCount Int         @default(0)
+  isActive     Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  claims       PerkClaim[]
+}
+
+model PerkClaim {
+  id        String   @id @default(uuid())
+  perkId    String
+  perk      Perk     @relation(fields: [perkId], references: [id], onDelete: Cascade)
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ipHash    String?
+  claimedAt DateTime @default(now())
+
+  @@index([perkId])
+  @@index([userId])
+}
+
+
+
