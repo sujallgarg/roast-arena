@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Excluded routes
+app/admin/
+app/api/admin/
+app/business/dashboard/
