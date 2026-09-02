@@ -107,11 +107,13 @@ export function DuelArena({ battle }: DuelArenaProps) {
           </div>
 
           <button
+            type="button"
             onClick={() => setIsShareOpen(true)}
-            className="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition-all flex items-center gap-1.5 cursor-pointer border border-slate-200"
+            className="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-black text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+            title="Share Battle & Brand Toolkit"
           >
-            <Share2 className="w-3.5 h-3.5 text-amber-500" />
-            <span>Export Card</span>
+            <Share2 className="w-3.5 h-3.5 text-amber-400" />
+            <span>Share Battle</span>
           </button>
         </div>
 
@@ -251,12 +253,28 @@ export function DuelArena({ battle }: DuelArenaProps) {
             </div>
 
             <button
+              type="button"
               onClick={() => setShowHistory(!showHistory)}
               className="text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors flex items-center justify-center gap-1 mx-auto pt-1 cursor-pointer"
             >
               <span>View Roast History</span>
               {showHistory ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
             </button>
+
+            {/* Share Battle Action for Brands & Everyone */}
+            <div className="pt-2.5 border-t border-slate-200/80 flex items-center justify-between">
+              <span className="text-[11px] font-bold text-slate-500">
+                Rally votes for your favorite brand:
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsShareOpen(true)}
+                className="text-xs font-black text-red-600 hover:text-red-700 flex items-center gap-1.5 cursor-pointer transition-all hover:scale-102"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+                <span>Share Battle (+20 XP)</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -319,6 +337,8 @@ export function DuelArena({ battle }: DuelArenaProps) {
         isOpen={isShareOpen}
         onClose={() => setIsShareOpen(false)}
         battle={{
+          id: battle.id,
+          slug: battle.slug,
           title: battle.title,
           brandA: battle.brandA,
           brandB: battle.brandB,

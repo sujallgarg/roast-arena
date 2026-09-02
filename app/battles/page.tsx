@@ -31,6 +31,7 @@ import confetti from "canvas-confetti";
 import { ArenaNavbar } from "@/components/ArenaNavbar";
 import { ArenaSidebar } from "@/components/ArenaSidebar";
 import { RoundTimerShowcase } from "@/components/RoundTimerShowcase";
+import { MatchShareCard, ShareBattleData } from "@/components/MatchShareCard";
 import {
   RoundState,
   TOTAL_ROUNDS,
@@ -111,6 +112,29 @@ export default function LiveBattlesPage() {
   // Search & Filter for battles
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Battle Share Modal State
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [currentBattleShareData, setCurrentBattleShareData] = useState<ShareBattleData>({
+    id: "live-battle-1",
+    slug: "nike-vs-adidas",
+    title: "Nike vs Adidas - The Ultimate Footwear Showdown",
+    brandA: {
+      name: "Nike",
+      handle: "@nike",
+      logoUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=150&auto=format&fit=crop&q=80",
+      brandColor: "#ef4444",
+    },
+    brandB: {
+      name: "Adidas",
+      handle: "@adidas",
+      logoUrl: "https://images.unsplash.com/photo-1518002171953-a080ee817e1f?w=150&auto=format&fit=crop&q=80",
+      brandColor: "#3b82f6",
+    },
+    votesCountA: 12450,
+    votesCountB: 7620,
+    topRoast: "Just Do It? More like Just Copied It! 💀",
+  });
+
   // Real Database Battles & Roasters (eliminating static mock data)
   const [dbBattles, setDbBattles] = useState<any[]>([]);
   const [trendingRoasters, setTrendingRoasters] = useState<any[]>([]);
@@ -189,6 +213,18 @@ export default function LiveBattlesPage() {
           if (data.votesCountB !== undefined) setAdidasVotes(data.votesCountB);
           if (data.comments && Array.isArray(data.comments)) {
             setComments(data.comments);
+          }
+          if (data.battleId) {
+            setCurrentBattleShareData((prev) => ({
+              ...prev,
+              id: data.battleId,
+              slug: data.slug || prev.slug,
+              title: data.title || prev.title,
+              brandA: data.brandA || prev.brandA,
+              brandB: data.brandB || prev.brandB,
+              votesCountA: data.votesCountA ?? prev.votesCountA,
+              votesCountB: data.votesCountB ?? prev.votesCountB,
+            }));
           }
         }
       }
@@ -587,9 +623,21 @@ export default function LiveBattlesPage() {
                       )}
                     </div>
 
-                    <div className="flex items-center gap-2 font-bold text-slate-600 text-xs bg-slate-50 border border-slate-200/60 px-3 py-1.5 rounded-full shadow-2xs">
-                      <Users className="w-4 h-4 text-slate-400" />
-                      <span>{watchingCount.toLocaleString()} watching</span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setIsShareModalOpen(true)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-black uppercase tracking-wider transition-all shadow-2xs hover:scale-102 active:scale-95 cursor-pointer"
+                        title="Share Battle & Brand Toolkit (+20 XP)"
+                      >
+                        <Share2 className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Share Battle</span>
+                      </button>
+
+                      <div className="flex items-center gap-2 font-bold text-slate-600 text-xs bg-slate-50 border border-slate-200/60 px-3 py-1.5 rounded-full shadow-2xs">
+                        <Users className="w-4 h-4 text-slate-400" />
+                        <span>{watchingCount.toLocaleString()} watching</span>
+                      </div>
                     </div>
                   </div>
 
@@ -957,6 +1005,35 @@ export default function LiveBattlesPage() {
                       </span>
                     </div>
                   )}
+
+                  {/* SHARE THE BATTLE SECTION (FOR BRANDS & EVERYONE) */}
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-3.5 p-4 rounded-2xl bg-gradient-to-r from-slate-50 via-red-50/20 to-slate-50 border border-slate-200/80 shadow-2xs">
+                    <div className="flex items-center gap-3 text-left w-full sm:w-auto">
+                      <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-red-600 shrink-0 shadow-2xs">
+                        <Share2 className="w-5 h-5 text-red-600" />
+                      </div>
+                      <div className="space-y-0.5">
+                        <div className="text-xs font-black text-slate-900 flex items-center gap-2">
+                          <span>Share The Battle</span>
+                          <span className="px-2 py-0.5 rounded-full bg-red-100 text-red-700 text-[10px] font-black uppercase tracking-wider border border-red-200">
+                            For Brands & Fans • +20 XP
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-500 font-medium">
+                          Rally your audience, share to X / WhatsApp, or embed this live duel widget onto your website!
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsShareModalOpen(true)}
+                      className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer active:scale-95 shrink-0"
+                    >
+                      <Share2 className="w-4 h-4 text-amber-400" />
+                      <span>Share Battle 🚀</span>
+                    </button>
+                  </div>
                 </div>
 
                 {/* Bottom Row: TRENDING ROASTERS & RECENT ACTIVITY */}
@@ -1501,6 +1578,16 @@ export default function LiveBattlesPage() {
           </aside>
         </div>
       </div>
+      {/* Match Share Modal (For Brands and Everyone) */}
+      <MatchShareCard
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        battle={{
+          ...currentBattleShareData,
+          votesCountA: nikeVotes,
+          votesCountB: adidasVotes,
+        }}
+      />
     </div>
   );
 }
